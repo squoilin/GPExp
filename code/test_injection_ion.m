@@ -30,7 +30,7 @@ outputnames = {'Mdot_{ex} [kg/s]','Mdot_{inj} [kg/s]', 'Wdot [kW]', 'T_{ex} [C]'
 %in.covhypp=[0,0];
 
 % Indexes of the inputs/output to be processed:
-idx_inputs=[2 3];
+idx_inputs=[1 2 3 4 5];
 idx_output=3;
 
 in.Ngrid = 10;
