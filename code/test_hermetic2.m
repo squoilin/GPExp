@@ -33,12 +33,14 @@ outputnames = {'epsilon_s','phi'};
 idx_inputs=[1 2 3];
 idx_output=1;
 
-in.Ngrid = 10;
+in.Ngrid = 20;
 
 in.perm = 0;
 in.kfolds = 5;
 
-in.covhyp=[10*ones(length(idx_inputs),1);0];
+%in.xy = [1 2];
+
+%in.covhyp=[10*ones(length(idx_inputs),1);0];
 
 
 

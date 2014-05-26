@@ -23,7 +23,7 @@ outputnames = {'epsilon_s','Mdot'};
 in.covfunction='covSEard';
 
 % Indexes of the inputs/output to be processed:
-idx_inputs=[2 3];
+idx_inputs=[1 3];
 idx_output=2;
 
 in.xy = [1 2];
