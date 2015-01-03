@@ -9,7 +9,7 @@ function [in] = inputs_sanity_check(in)
 % All rights reserved.
 
 if nargin<1
-    error('Please enter a valid input structure to be checked')
+    error('Please enter a valid input structure')
 end
 
 if ~isfield(in,'inputs') || ~isfield(in,'outputs')
@@ -106,7 +106,7 @@ if isfield(in,'plot_xy')
             if isempty(idx)
                 error(['The specified axis input (' in.plot_xy{i} ') could no be found in the list of selected input names:' list_considered_inputs])
             end
-            in.idx_xy = [idx_xy idx];
+            in.idx_xy = [in.idx_xy idx];
         end
     end
 end
@@ -124,14 +124,24 @@ if ~isfield(in,'perm') %number of permutations for significance
     in.perm=0;
 end
 
+if in.kfolds < 0 && in.perm > 0
+    error('Permutations only work with cross validation. Please set the number of folds to a non-negative value or set the number of permutations to zero')
+end
+
 if ~isfield(in,'name') %name of the simulation for plotting and for saving results
     in.name = 'default';
 end
 
 if ~isfield(in,'Ngrid') %number of grid points per dimension
-    in.Ngrid = 20;
+    Ngrid_max = floor(1E5^(1/Nvars));
+    in.Ngrid = max(20,Ngrid_max);
 end
 
+Ngridpoints = in.Ngrid^Nvars;
+if Ngridpoints > 1E6
+    warning('You have many grid points (probably due to a high number of considered input variables). This might cause memory issues and can be solved by reducing the Ngrid parameter')
+end
+    
 if ~isfield(in,'hyp')
     in.hyp.cov = zeros(Nvars+1,1);
     in.hyp.lik = 0;

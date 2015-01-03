@@ -40,7 +40,7 @@
 % each user input, a short description is provided with the required input
 % format. Some inputs are compulsory, while some others can be left blank
 % for the default value.
-clear in;
+clear in out
 
 %% 1. Description and origin of the input data. 
 % Please provide any relevant information regarding the orgin of the data
@@ -159,12 +159,13 @@ in.considered_output = {
 
 % Default value: 0
 
-in.kfolds = 10;
+in.kfolds =-1;
 
 
 %% 6. Number of permutations
-% To assess the significance of the regression performance, permutations
-% are used: the input rows are randomly permuted to obtain a “baseline” model 
+% To assess the significance of the regression performance compared to the 
+% null hypothesis, permutations are used: 
+% the input rows are randomly permuted to obtain a “baseline” model 
 % performance (i.e. the performance of the regression for a totally random
 % and non-correlated set of inputs/output). The “true” model performance is 
 % then compared to the baseline level.
@@ -181,6 +182,9 @@ in.kfolds = 10;
 % If used, it should be set to a number sufficient to ensure statistical
 % relevance.
 
+% NB: the permutation method uses cross-validation, kfolds must therefore
+% be set to a positive value to activate it.
+
 % Default value: 0
 
 in.perm = 0;
@@ -196,7 +200,7 @@ in.perm = 0;
 % If not specificed, the two most relevant variables (i.e. the ones with
 % the lowest lengthscales) are plotted
 
-%in.Ngrid = 10;
+%in.Ngrid = 15;
 
 % in.plot_xy = {
 %     'T_{chw,in} [C]'
@@ -239,7 +243,5 @@ in.perm = 0;
 %in.hyp.lik=log(0.0113);                                % Standard deviation of the likelihood
 
 %in = inputs_sanity_check(in);
-%results = GP_model_data(in.x,in.y,in)
-
 results = main_model(in)
 
