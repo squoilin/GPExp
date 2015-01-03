@@ -23,7 +23,7 @@ outputnames = {'epsilon_s','phi'};
 in.covfunction='covSEard';
 
 % Indexes of the inputs/output to be processed:
-idx_inputs=[1 2 3];
+idx_inputs=[1 2];
 idx_output=1;
 
 in.perm = 0;

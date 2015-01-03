@@ -1,8 +1,11 @@
+addpath('../gpml-matlab-v3.2-2013-01-15');
+addpath('../gpml-matlab-v3.2-2013-01-15/util');
+
 
 % y=sin(x/2)+4;
 type_fitt='poly2';
 numparam=3;
-in.perm=100;
+in.perm=0;
 
 %Vary the number of points
 ndp=3:3:40;

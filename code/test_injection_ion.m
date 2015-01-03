@@ -17,8 +17,12 @@
 % y(:,4): T_ex [°C]
 
 
-clear
+clearvars
 load dataset_injection_ion.mat
+
+n = size(inputs,1);
+%inputs = inputs([1:10:n],:);
+%y = y([1:10:n],:);
 
 
 % Definition of the variables names for plotting and of post-processing:
@@ -30,15 +34,20 @@ outputnames = {'Mdot_{ex} [kg/s]','Mdot_{inj} [kg/s]', 'Wdot [kW]', 'T_{ex} [C]'
 %in.covhypp=[0,0];
 
 % Indexes of the inputs/output to be processed:
-idx_inputs=[1 2 3 4 5];
+idx_inputs=[1 2 3];
 idx_output=3;
 
-in.Ngrid = 10;
+%in.Ngrid = 10;
 
 in.perm = 0;
-in.kfolds = 5;
+in.kfolds = 1;
+%in.Ngrid=40;
 
-in.covhyp=[0*ones(length(idx_inputs),1);0];
+%in.hyp.lik=-3.626826487751976;
+%in.hyp.cov=[5*ones(length(idx_inputs),1);0];
+
+
+%in.covhyp=[0*ones(length(idx_inputs),1);0];
 % two ok optimums: one at 0 (takes T_su into account), one at 4 (neglects
 % Tsu)
 

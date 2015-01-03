@@ -1,0 +1,16 @@
+full factorial experiment: 
+each factor is tested independently
+each factor is tested at each level in every possible combination with the other factors and their levels
+
+The F-test analysis (F-ratio): 
+ratio of the variation between groups (a group varies from another by a factor) and within groups
+
+Factors may generate non-linear effects that are not additive
+
+
+
+resources:
+DOE Simplified: Practical Tools for Effective Experimentation
+Statistics for Experimenters: An Introduction to Design, Data Analysis, and Model Building
+Design and Analysis of Experiments, 5th Edition
+

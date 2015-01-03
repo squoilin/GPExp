@@ -39,6 +39,16 @@ function [out]=GP_model_data(x,y,in)
 
 %recursive feature addition/elimination
 
+
+% Adding the GPML toolbox to the path:
+
+addpath('../gpml3.2/')
+addpath('../gpml3.2/cov/')
+addpath('../gpml3.2/inf/')
+addpath('../gpml3.2/lik/')
+addpath('../gpml3.2/mean/')
+addpath('../gpml3.2/util/')
+
 %Sanity check and initialize
 %----------------------------
 if nargin<2
@@ -55,7 +65,7 @@ end
 
 if nargin==3 || nargin == 2
     if isfield(in,'covfunction') %covariance function
-        covfunction={in.covfunction};
+        covfunction=in.covfunction;
     else
         covfunction={'covSEard'};
     end
@@ -74,16 +84,16 @@ if nargin==3 || nargin == 2
     else
         name = 'default';
     end   
-    if isfield(in,'inputnames') %name of the input variables
-        inputnames = in.inputnames;
+    if isfield(in,'considered_inputs') %name of the input variables
+        inputnames = in.considered_inputs;
     else
         inputnames=cell(size(x,2),1);
         for i=1:size(x,2)
             inputnames{i} = ['Input ',num2str(i)];
         end
     end   
-    if isfield(in,'outputname') %name of the output variable
-        outputname = in.outputname;
+    if isfield(in,'considered_output') %name of the output variable
+        outputname = in.considered_output;
     else
         outputname = {'Output'};
     end     
@@ -93,6 +103,8 @@ if nargin==3 || nargin == 2
         Ngrid = 20;
     end         
 end
+
+tic
 
 % meanfunc = @meanConst;
 % hyp.mean = 0;
@@ -241,6 +253,7 @@ for p=0:nperm %for each permutation of the targets + the "true" targets
         out.train.mae=mean(abs(m-yp));
         out.train.rsquare = rsquare(m,yp);
         out.hypcov = exp(hyp.cov);
+        out.hyp = hyp;
         out.outliers=abs((m-y))./sqrt(s2);  %detect outliers
         %compute model evidence, AIC and BIC
         nlml = gp(hyp, @infExact, meanfunc, covfunction, likfunc, x, yp);
@@ -369,7 +382,8 @@ for p=0:nperm %for each permutation of the targets + the "true" targets
         ytr=yp(sk~=i,:);
         yte=yp(sk==i,:);
         %optimize hyperparameters
-        hyp.cov = zeros(size(x,2)+1,1);
+        %hyp.cov = zeros(size(x,2)+1,1);
+        hyp = out.hyp;
         hyp = minimize(hyp, @gp,nfe, @infExact, meanfunc, covfunction, likfunc, xtr, ytr);
         %test model on predictions
         [m] = gp(hyp, @infExact, meanfunc, covfunction, likfunc, xtr, ytr, xte,yte);
@@ -396,7 +410,7 @@ out.CV.pmae=pcvmae/nperm;
 end
 
 save(['GP_modelling_dataset_',num2str(name),'.mat'],'out','out')
-
+toc
 
 %previous attempt to optimize the guess value of the minimization: 
 % (didn't work due to the multiplicity of local minimums)
