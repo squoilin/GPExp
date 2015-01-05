@@ -31,7 +31,7 @@ function [out]=main_model(in)
 %      the datapoints outside the 95% confidence intervals defined by the
 %      model.
 %--------------------------------------------------------------------------
-% Written by J. Schrouff, Cyclotron Research Centre, 31/01/2013
+% Written by J. Schrouff and S. Quoilin, University of Liège, 2013-2014
 % Using the GPML toolbox written by C.E. Rasmussen and C.K. Williams (2006)
 
 % todo: save the hypercube and its vectors

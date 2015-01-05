@@ -132,6 +132,14 @@ if ~isfield(in,'name') %name of the simulation for plotting and for saving resul
     in.name = 'default';
 end
 
+if isfield(in,'description')
+    if ~iscellstr(in.description)
+        error('The "description" field should be a cell array of strings')
+    end
+else
+    in.description = {' '};
+end
+
 if ~isfield(in,'Ngrid') %number of grid points per dimension
     Ngrid_max = floor(1E5^(1/Nvars));
     in.Ngrid = max(20,Ngrid_max);
