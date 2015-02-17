@@ -47,17 +47,17 @@ clear in out
 % The 'name' variable is a string used for the file name of the results
 % The 'description' variable is a cell array of strings for each line.
 
-in.name = 'absorption';
+in.name = 'scroll_arnaud';
 
 in.description = strcat({
-'Steady-state data relative to a Low-capacity (10 kW) absorption chiller'
-'Model: Pink chilli PSC 12'
-'Fluid: NH3-H2O'
+'Steady-state data relative to a scroll expander operating with steam'
+'Description du scroll'
+''
 ''
 'Data from:'
-'Jerko Labus, Modelling of small capacity absorption chillers driven by '
-'solar thermal energy or waste heat, PhD Thesis, Universitat Rovira I '
-'I Virgili, Tarragona, 2011   '
+'Not yet published '
+' '
+' '
 });
 
 
@@ -70,11 +70,11 @@ in.description = strcat({
 % The file should be placed in the current working directory, or the full
 % (relative path must be provided)
 
-load dataset_absorption.mat
+load dataset_scroll_arnaud.mat
 in.inputs=inputs;
-in.outputs=y;
+in.outputs=output;
 
-n = size(inputs,1);
+n = size(in.inputs,1);
 %inputs = inputs([1:10:n],:);
 %y = y([1:10:n],:);
 
@@ -88,23 +88,16 @@ n = size(inputs,1);
 % for plotting.
 
 in.inputnames = {
-    'T_{chw,in} [C]'
-    'T_{cw,in} [C]'
-    'T_{hw,in} [C]'
-    'Vdot_{chw} [m³/h]'
-    'Vdot_{cw} [m³/h]'
-    'Vdot_{hw} [m³/h]'
+    'P_{w,su,exp}'
+    'T_{w,su,exp}'
+    'P_{w,ex,exp}'
+    'T_{w,ex,exp}'
+    'Mdot_w'
+    'Nrot_{exp}'
+    'Wdot_{el,exp}'
     };
 
-in.outputnames = {
-    'Qdot_{eva} [kW]'
-    'Qdot_{ac} [kW]'
-    'Qdot_{gen} [kW]'
-    'COP_{th}'
-    'Wdot [kW]'
-    'COP_{overall}'
-    'EER'
-    };
+in.outputnames = {header_out};
 
 %% 4. Selection of inputs and outputs 
 % This defines the subset of the inputs to be considered for the
@@ -114,26 +107,31 @@ in.outputnames = {
 % whose value must be defined in the "outputnames variables".
 
 in.considered_inputs = {
-    'T_{chw,in} [C]'
-    'T_{cw,in} [C]'
-    'T_{hw,in} [C]'
-%    'Vdot_{chw} [m³/h]'
-%    'Vdot_{cw} [m³/h]'
-%    'Vdot_{hw} [m³/h]'
+    'P_{w,su,exp}'
+    'T_{w,su,exp}'
+%    'P_{w,ex,exp}'
+%    'T_{w,ex,exp}'
+%    'Mdot_w'
+    'Nrot_{exp}'
+%    'Wdot_{el,exp}'
     };
 
-in.considered_output = {
-    'Qdot_{eva} [kW]'
-%    'Qdot_{ac} [kW]'
-%    'Qdot_{gen} [kW]'
-%    'COP_{th}'
-%    'Wdot [kW]'
-%    'COP_{overall}'
+in.considered_output = {'epsilon_s'
     };
+
+%% Inlude time as an explanatory variable?
+% If the consider_temporality variable is set to true, the index of the
+% samples is included in the input matrix. This allows evaluating
+% time-related effects, such as the progressive decrease in efficiency.
+% This option should however be used with care since most of the data sets
+% present a dependency with time, related to how the experimental campaign
+% was designed.
+
+in.consider_temporality = false;
 
 
 %% 5. Number of folds
-% GPExp results are all cross-validation-based: all the performance
+% GPExp results are cross-validation-based: all the performance
 % indicators are computed on data points that were not used to train de
 % model. The number of data points to leave outside of the training set can
 % be user-defined through the "kfolds" parameter. 
@@ -157,7 +155,7 @@ in.considered_output = {
 
 % Default value: 0
 
-in.kfolds =-1;
+in.kfolds = 0;
 
 
 %% 6. Number of permutations
@@ -181,7 +179,7 @@ in.kfolds =-1;
 % relevance.
 
 % NB: the permutation method uses cross-validation, kfolds must therefore
-% be set to a positive value to activate it.
+% be set to a positive value.
 
 % Default value: 0
 
@@ -240,6 +238,10 @@ in.perm = 0;
 %in.hyp.cov= log([3.7088; 2.9898; 1.1500; 0.5153]);     % 3 lengthscales and one standard deviation 
 %in.hyp.lik=log(0.0113);                                % Standard deviation of the likelihood
 
-%in = inputs_sanity_check(in);
+
+%% 9. Calling the model
+
+in = inputs_sanity_check(in);
 results = main_model(in)
+result_analysis(in,results);
 

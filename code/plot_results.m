@@ -4,6 +4,7 @@ function [ success ] = plot_results(in,out)
 %   in : the input structure of GPExp
 %   out: the output (results) structure of GPExp
 
+%% 3D plot of the results:
 x=in.x;
 y=in.y;
 z = out.ndgrid.z;
@@ -77,7 +78,8 @@ elseif nv > 2
     saveas(gcf,in.name,'fig')
 end
 
-% plot of predicted vs. measured variables
+
+%% plot of predicted vs. measured variables
 miny = min(y) - (max(y)-min(y))/15;
 maxy = max(y) + (max(y)-min(y))/15;
 
@@ -88,13 +90,48 @@ plot(y,out.train.y_pred,'r*')
 plot([miny,maxy],[miny,maxy],'k')
 if isfield(out,'CV')
     plot(y,out.CV.y_pred,'b+')
-    legend('Train (i.e. with all data samples)','Cross-Validation','45 deg','Location','NorthWest')
+    legend('Train (i.e. with all data samples)','45 deg','Cross-Validation','Location','NorthWest')
 else
     legend('Train (i.e. with all data samples)','45 deg','Location','NorthWest')
 end
 title(['Predicted vs measured values of ' in.considered_output])
 
 
+
+%% Plot all the points on the gaussian distribution + 5% confidence intervals
+
+figure()
+alpha = 0.025;          % significance level
+mu = 0;               % mean
+sigma = 1;             % std
+range = max(3,max(abs(out.outliers))) ;       % range (in the units of the std) for plotting
+cutoff1 = norminv(alpha, mu, sigma);
+cutoff2 = norminv(1-alpha, mu, sigma);
+x = [linspace(mu-range*sigma,cutoff1,20), ...
+    linspace(cutoff1,cutoff2,50), ...
+    linspace(cutoff2,mu+range*sigma,20)];
+y = normpdf(x, mu, sigma);
+plot(x,y)
+
+xlo = [-range x(x<=cutoff1) cutoff1];
+ylo = [0 y(x<=cutoff1) 0];
+patch(xlo, ylo, 'r','FaceAlpha',0.25)
+
+xhi = [cutoff2 x(x>=cutoff2) range];
+yhi = [0 y(x>=cutoff2) 0];
+patch(xhi, yhi, 'r','FaceAlpha',0.25)
+
+xlabel('Number of standard deviations')
+ylabel('Gaussian probability distribution')
+
+for i = 1:length(out.outliers)
+    string = num2str(i);
+    xx = out.outliers(i);
+    yy=normpdf(xx,mu,sigma);
+    text(xx,yy,string);
+end
+
+title('Detection of outliers: Normal distribution of the error, with 5% significance intervals')
 
 success = true; 
 

@@ -27,7 +27,10 @@ if ~isfield(in,'inputnames') %name of the input variables
         in.inputnames{i} = ['Input ',num2str(i)];
     end
 else
-    if size(in.inputnames,1) ~= size(in.inputs,2)
+    if ~isvector(in.inputnames)
+        error(['The inputnames variable must be a vector'])
+    end
+    if length(in.inputnames) ~= size(in.inputs,2)
         error(['The number of specified input names (' num2str(size(in.inputnames,1)) ') does not match with the number of columns of the input array (' num2str(size(in.inputs,2)) ')'])
     end
 end
@@ -86,6 +89,15 @@ else
     end
     in.x = in.inputs(:,idx_inputs);
 end
+
+if ~isfield(in,'consider_temporality')
+    in.consider_temporality = false;
+end
+
+if in.consider_temporality && sum(strcmp('idx_{sample}',in.considered_inputs))<1
+    in.x = horzcat(in.x,(1:size(in.x,1))');
+    in.considered_inputs{end+1,1}='idx_{sample}';
+end
     
 Nrows = size(in.x,1);
 Nvars = size(in.x,2);
@@ -142,7 +154,7 @@ end
 
 if ~isfield(in,'Ngrid') %number of grid points per dimension
     Ngrid_max = floor(1E5^(1/Nvars));
-    in.Ngrid = max(20,Ngrid_max);
+    in.Ngrid = min(20,Ngrid_max);
 end
 
 Ngridpoints = in.Ngrid^Nvars;

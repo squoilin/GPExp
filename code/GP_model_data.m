@@ -254,7 +254,7 @@ for p=0:nperm %for each permutation of the targets + the "true" targets
         out.train.rsquare = rsquare(m,yp);
         out.hypcov = exp(hyp.cov);
         out.hyp = hyp;
-        out.outliers=abs((m-y))./sqrt(s2);  %detect outliers
+        out.outliers=(m-y)./sqrt(s2);  %detect outliers
         %compute model evidence, AIC and BIC
         nlml = gp(hyp, @infExact, meanfunc, covfunction, likfunc, x, yp);
         out.AIC=2*nlml+2*(length(hyp.cov));

@@ -175,7 +175,7 @@ for p=0:nperm %for each permutation of the targets + the "true" targets
         [out.train.rsquare out.train.rmse] = rsquare(out.train.y_pred,yy);
         out.hypcov = exp(hyp.cov);
         out.hyp = hyp;
-        out.outliers=abs((m-y))./sqrt(s2);  %detect outliers
+        out.outliers=(y-m)./sqrt(s2);  %detect outliers
         %compute model evidence, AIC and BIC
         nlml = gp(hyp, @infExact, meanfunc, covfunction, likfunc, x, yp);
         out.AIC=2*nlml+2*(length(hyp.cov));             % Akaike information criterion
