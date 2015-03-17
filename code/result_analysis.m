@@ -121,7 +121,7 @@ if isfield(out,'CV')
     ratio_error = out.CV.mae/out.train.mae;
     write(fid,{['The ratio between the error in CV and training is ' num2str(ratio_error,3)]},'blue');
     if ratio_error < 2
-        write(fid,{'This value is lower than 2, which tends to indicate that there is no overfitting'},'blue');
+        write(fid,{'This value relatively low, which tends to indicate that there is no overfitting'},'blue');
     elseif ratio_error < 4
         write(fid,{'This value is comprised between 2 and 4, which might indicate some overfitting!'
             'If overfitting is visually detected, try reducing the number of inputs, or increasing the'
@@ -139,6 +139,8 @@ else
         },'blue');
 end
 
+% To be done: add a criteria with the smallest lengthscale (equivalent to
+% visual check?)
 
 
 

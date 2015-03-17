@@ -108,7 +108,7 @@ in.outputnames = {header_out};
 
 in.considered_inputs = {
     'P_{w,su,exp}'
-    'T_{w,su,exp}'
+%    'T_{w,su,exp}'
 %    'P_{w,ex,exp}'
 %    'T_{w,ex,exp}'
 %    'Mdot_w'
