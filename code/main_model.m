@@ -51,8 +51,6 @@ addpath([gpmlpath 'lik/'])
 addpath([gpmlpath 'mean/'])
 addpath([gpmlpath 'util/'])
 
-close all
-
 %Sanity check and initialize
 %----------------------------
 tic
@@ -275,7 +273,7 @@ if k>=0
 end
 
 % Plot results:
-plot_results(in,out);
+% plot_results(in,out);
 
 % Save simulation inputs and outputs:
 save(['GP_modelling_dataset_',num2str(name),'.mat'],'in','out')

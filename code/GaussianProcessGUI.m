@@ -42,6 +42,7 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
+end
 
 
 % --- Executes just before GaussianProcessGUI is made visible.
@@ -60,6 +61,7 @@ guidata(hObject, handles);
 
 % UIWAIT makes GaussianProcessGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+end
 
 
 % --- Outputs from this function are returned to the command line.
@@ -71,6 +73,7 @@ function varargout = GaussianProcessGUI_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+end
 
 
 % --- Select your file.
@@ -86,54 +89,30 @@ if ischar(str_filename) && ischar(pathname)
     error = 0;
     
     if strcmp(str_filename(end-2:end),'mat')
+        %% MAT-file import
         load([pathname '/' str_filename]);
-        vars = whos('-file',[pathname '/' str_filename]);
-        
-        if (sum(ismember({vars.name},'inputs'))~=1 || sum(ismember({vars.name},'outputs'))~=1 || sum(ismember({vars.name},'header_in'))~=1 || sum(ismember({vars.name},'header_out'))~=1)
-            set(handles.ErrorDisplay,'String','The "in" structure should at least contain the "inputs" and "outputs" fields');
-
-            ResetScript
-            error = 1;
-        else
-            error = 0;
-        end
-        
     elseif strcmp(str_filename(end-2:end),'csv') || strcmp(str_filename(end-2:end),'xls') || strcmp(str_filename(end-3:end),'xlsx')
-        %% XLS/CSV/XLSX import
-        %The file must be organized into two sheets: one called 'inputs'
-        %and the other called 'outputs'.
-        %The header of each column will be considered as the variable name.
-        %Each column represent then a variable and each line is one steady
-        %state point.
-        [~,sheets] = xlsfinfo([pathname '/' str_filename]);
-        
-        if sum(ismember(sheets,{'inputs' 'outputs'})) ~= 2
-            set(handles.ErrorDisplay,'String','The file must contain the ''inputs'' and ''outputs'' sheets');
-            ResetScript
-            set(handles.ErrorDisplay,'ForegroundColor','r')
-            error = 1;
-        else
-            set(handles.ErrorDisplay,'String','')
-            
-            [inputs,header_in,~] = xlsread([pathname '/' str_filename],'inputs');
-            [outputs,header_out,~] = xlsread([pathname '/' str_filename],'outputs');
-            if length(header_in)<1 || length(header_out)<1
-                set(handles.ErrorDisplay,'String','Headers have not been provided.');
-                ResetScript
-                set(handles.ErrorDisplay,'ForegroundColor','r')
-                error = 1;
-            else
-                error = 0;
+        %% XLS/CSV/XLSX-file import
+        set(handles.ErrorDisplay,'String','')
+        [data,header,~] = xlsread([pathname '/' str_filename]);
+        if length(header)<1
+            for i = 1:size(data,2)
+                header{1,i} = ['Var' num2str(i)];
             end
         end
+    else
+        error = 1;
+        ResetScript
+        set(handles.ErrorDisplay,'String','Wrong input file extension.')
+        set(handles.ErrorDisplay,'ForegroundColor','r')
     end
-    
+
     if error == 0
-        
+
         set(handles.ErrorDisplay,'String','')
-        
-        handles.in.inputs = inputs;
-        handles.in.outputs = outputs;
+
+        handles.in.inputs = data;
+        handles.in.outputs = data;
         handles.n = size(handles.in.inputs,1);
 
         if size(handles.in.inputs,1) ~= size(handles.in.outputs,1)
@@ -141,19 +120,24 @@ if ischar(str_filename) && ischar(pathname)
             ResetScript
             set(handles.ErrorDisplay,'ForegroundColor','r')
         else
-            [m_in,n_in] = size(header_in);
-            [m_out,n_out] = size(header_out);
-
-            if m_in < n_in
-                handles.in.inputnames = header_in';
-            else
-                handles.in.inputnames = header_in;
+            if ~exist('header','var')%if no variable called header, we create it
+                for i = 1:size(handles.in.inputs,2)
+                    header{1,i} = ['Var' num2str(i)];
+                    handles.in.inputnames = header;
+                    handles.in.outputnames = header;
+                end
             end
 
-            if m_out < n_out
-                handles.in.outputnames = header_out';
+            [m_in,n_in] = size(header);
+
+            %Check whether we have a column or line vector (line vector
+            %required)
+            if m_in < n_in
+                handles.in.inputnames = header';
+                handles.in.outputnames = header';
             else
-                handles.in.outputnames = header_out;
+                handles.in.inputnames = header;
+                handles.in.outputnames = header;
             end
 
             set(handles.ConsideredInputListbox,'Enable','on')
@@ -169,9 +153,9 @@ if ischar(str_filename) && ischar(pathname)
             set(handles.AnalysisStatusButton,'String','Run Analysis');
         end
     end
-end
-
 guidata(hObject,handles);
+end
+end
 
 % --- Executes on selection change in ConsideredInputListbox.
 function ConsideredInputListbox_Callback(hObject, eventdata, handles)
@@ -185,8 +169,10 @@ function ConsideredInputListbox_Callback(hObject, eventdata, handles)
 contents = cellstr(get(hObject,'String'));
 index_sel = get(hObject,'Value');
 handles.in.considered_inputs=contents(index_sel');
+handles.in.considered_input_index = index_sel;
 
 guidata(hObject,handles);
+end
 
 % --- Executes during object creation, after setting all properties.
 function ConsideredInputListbox_CreateFcn(hObject, eventdata, handles)
@@ -198,6 +184,7 @@ function ConsideredInputListbox_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
 end
 
 
@@ -213,8 +200,10 @@ function ConsideredOutputListbox_Callback(hObject, eventdata, handles)
 contents = cellstr(get(hObject,'String'));
 index_sel = get(hObject,'Value');
 handles.in.considered_output=contents(index_sel');
+handles.in.considered_output_index = index_sel;
 
 guidata(hObject,handles);
+end
 
 % --- Executes during object creation, after setting all properties.
 function ConsideredOutputListbox_CreateFcn(hObject, eventdata, handles)
@@ -226,6 +215,7 @@ function ConsideredOutputListbox_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
 end
 
 
@@ -240,6 +230,7 @@ function TimeVariableCheckbox_Callback(hObject, eventdata, handles)
 handles.in.consider_temporality = get(hObject,'Value');
 
 guidata(hObject,handles);
+end
 
 
 
@@ -258,6 +249,7 @@ handles.in.kfolds = str2double(get(hObject,'String'));
 % end
 
 guidata(hObject,handles);
+end
 
 % --- Executes during object creation, after setting all properties.
 function kfoldTextbox_CreateFcn(hObject, eventdata, handles)
@@ -269,6 +261,7 @@ function kfoldTextbox_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
 end
 
 
@@ -288,6 +281,7 @@ handles.in.perm = str2double(get(hObject,'String'));
 % end
 
 guidata(hObject,handles);
+end
 
 % --- Executes during object creation, after setting all properties.
 function PermutationTextbox_CreateFcn(hObject, eventdata, handles)
@@ -299,6 +293,7 @@ function PermutationTextbox_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
 end
 
 
@@ -491,6 +486,7 @@ if error == 0
     set(handles.Textbox2,'String',{['The following data points present a significance level lower than 5 percent.' 'They are therefore likely to be outliers:'], ['Data point number ' text1(1:end-1)]});
     
 end
+end
 
 % --- Executes during object creation, after setting all properties.
 function MainPlot_CreateFcn(hObject, eventdata, handles)
@@ -499,7 +495,7 @@ function MainPlot_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: place code in OpeningFcn to populate MainPlot
-
+end
 
 % --- Executes when entered data in editable cell(s) in ResultTable.
 function ResultTable_CellEditCallback(hObject, eventdata, handles)
@@ -511,7 +507,7 @@ function ResultTable_CellEditCallback(hObject, eventdata, handles)
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
-
+end
 
 % --- Executes when selected cell(s) is changed in ResultTable.
 function ResultTable_CellSelectionCallback(hObject, eventdata, handles)
@@ -519,21 +515,21 @@ function ResultTable_CellSelectionCallback(hObject, eventdata, handles)
 % eventdata  structure with the following fields (see UITABLE)
 %	Indices: row and column indices of the cell(s) currently selecteds
 % handles    structure with handles and user data (see GUIDATA)
-
+end
 
 % --- Executes on button press in AutoRunButton.
 function AutoRunButton_Callback(hObject, eventdata, handles)
 % hObject    handle to AutoRunButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-N_var = length(handles.in.inputnames);
-N_comb = factorial(N_var)./(factorial([N_var-1:-1:0]).*factorial([1:N_var])); %Number of possible cases per level (ie for 1 input, 2 inputs, 3 inputs ...)
-N_comb_tot = sum(N_comb);
-
-for i = 1%:N_var %Number of variable "trees"
-    for j = 1:N_var-i
-        
-    end
 end
+% N_var = length(handles.in.inputnames);
+% N_comb = factorial(N_var)./(factorial([N_var-1:-1:0]).*factorial([1:N_var])); %Number of possible cases per level (ie for 1 input, 2 inputs, 3 inputs ...)
+% N_comb_tot = sum(N_comb);
+% 
+% for i = 1%:N_var %Number of variable "trees"
+%     for j = 1:N_var-i
+%         
+%     end
+% end
 
