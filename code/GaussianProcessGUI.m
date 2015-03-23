@@ -22,7 +22,7 @@ function varargout = GaussianProcessGUI(varargin)
 
 % Edit the above text to modify the response to help GaussianProcessGUI
 
-% Last Modified by GUIDE v2.5 03-Mar-2015 16:43:32
+% Last Modified by GUIDE v2.5 23-Mar-2015 14:00:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -91,10 +91,16 @@ if ischar(str_filename) && ischar(pathname)
     if strcmp(str_filename(end-2:end),'mat')
         %% MAT-file import
         load([pathname '/' str_filename]);
+        handles.in.name = str_filename(1:end-4);
     elseif strcmp(str_filename(end-2:end),'csv') || strcmp(str_filename(end-2:end),'xls') || strcmp(str_filename(end-3:end),'xlsx')
         %% XLS/CSV/XLSX-file import
         set(handles.ErrorDisplay,'String','')
         [data,header,~] = xlsread([pathname '/' str_filename]);
+        if strcmp(str_filename(end-2:end),'csv') || strcmp(str_filename(end-2:end),'xls')
+            handles.in.name = str_filename(1:end-4);
+        elseif strcmp(str_filename(end-3:end),'xlsx')
+            handles.in.name = str_filename(1:end-5);
+        end
         if length(header)<1
             for i = 1:size(data,2)
                 header{1,i} = ['Var' num2str(i)];
@@ -314,9 +320,6 @@ error = 0;
 
 set(handles.ErrorDisplay,'String','');
 set(handles.ErrorDisplay,'ForegroundColor','k');
-set(handles.ResultTable,'Visible','off');
-set(handles.Textbox1,'String','');
-set(handles.Textbox2,'String','');
 
 handles.in.kfolds = str2double(get(handles.kfoldTextbox,'String'));
 handles.in.perm = str2double(get(handles.PermutationTextbox,'String'));
@@ -352,7 +355,6 @@ if error == 0
         fill([z; flipdim(z,1)], f, [7 7 7]/8)
         hold on; plot(z, y_gp); plot(x, y, '+');
         xlabel(handles.in.considered_inputs); ylabel(handles.in.considered_output);
-        saveas(gcf,handles.in.name,'fig')
     elseif nv==2
         hold on;
         surf(z_shaped(:,1),z_shaped(:,2),yp_shaped);
@@ -360,7 +362,6 @@ if error == 0
         xlabel(handles.in.considered_inputs(1)); ylabel(handles.in.considered_inputs(2)) ; zlabel(handles.in.considered_output);
         grid on
         view(45,25);
-        saveas(gcf,handles.in.name,'fig')
     elseif nv > 2
         if isfield(handles.in,'idx_xy') %if the x and y axes are imposed
             idx_sort = [handles.in.idx_xy, 1:(min(handles.in.idx_xy)-1),(min(handles.in.idx_xy)+1):(max(handles.in.idx_xy)-1),(max(handles.in.idx_xy)+1:nv)] ;
@@ -397,8 +398,8 @@ if error == 0
         ylabel(handles.in.considered_inputs(idx_sort(1))); xlabel(handles.in.considered_inputs(idx_sort(2))) ; zlabel(handles.in.considered_output); %title(plottext);
         grid on
         view(45,25);
-        saveas(gcf,handles.in.name,'fig')
     end
+    SaveScriptFig1
 
     %% plot of predicted vs. measured variables
     miny = min(y) - (max(y)-min(y))/15;
@@ -415,7 +416,8 @@ if error == 0
     else
         legend('Train (i.e. with all data samples)','45 deg','Location','best')
     end
-    %title(['Predicted vs measured values of ' handles.in.considered_output])
+    
+    SaveScriptFig2
 
     %% Plot all the points on the gaussian distribution + 5% confidence intervals
 
@@ -430,7 +432,7 @@ if error == 0
         linspace(cutoff1,cutoff2,50), ...
         linspace(cutoff2,mu+range*sigma,20)];
     y = normpdf(x, mu, sigma);
-    plot(x,y)
+    plot(x,y);
 
     xlo = [-range x(x<=cutoff1) cutoff1];
     ylo = [0 y(x<=cutoff1) 0];
@@ -449,42 +451,22 @@ if error == 0
         yy=normpdf(xx,mu,sigma);
         text(xx,yy,string);
     end
-
-    %title('Detection of outliers: Normal distribution of the error, with 5% significance intervals')
-
+    
+    SaveScriptFig3
     
     set(handles.AnalysisStatusButton,'String','Analysis Done');
     
-    %% Displaying the results
-    set(handles.ResultTable,'Visible','on');
-    if isfield(handles.results,'CV')
-        set(handles.ResultTable,'ColumnName',{'Training Mode','Cross-Validation'});
-        dataDisplayed = [handles.results.train.mae*100 handles.results.CV.mae*100;
-                         handles.results.train.rsquare*100 handles.results.CV.rsquare*100;
-                         handles.results.train.rmse handles.results.CV.rmse];
-    else
-        set(handles.ResultTable,'ColumnName',{'Training Mode'});
-        dataDisplayed = [handles.results.train.mae*100;
-                         handles.results.train.rsquare*100;
-                         handles.results.train.rmse];
-    end
-    set(handles.ResultTable,'RowName',{'MARE [%]','R square [%]','RMSE'});
-    set(handles.ResultTable,'Data',dataDisplayed);
+    %% HTML report
+
+    %Report construction
     
-    [val idx] = max(abs(handles.results.outliers)); 
-    set(handles.Textbox1,'String',['Data point number ' num2str(idx) ', with an error ' num2str(val) ' times higher than the standard ' 'deviation of the gaussian process function at that particular point']);
+    report(buildReport(handles.in,handles.results));
     
-    idx = find(abs(handles.results.outliers)>=1.96);
-    text1=[];
-    if isempty(idx)
-        text1 = ['None'];
-    else
-        for i = 1:length(idx)
-             text1=[text1 num2str(idx(i)) ', '];
-        end
-    end
-    set(handles.Textbox2,'String',{['The following data points present a significance level lower than 5 percent.' 'They are therefore likely to be outliers:'], ['Data point number ' text1(1:end-1)]});
+    %Suppression of the image createn for the report
     
+    delete([handles.in.name '_fig1.png']);
+    delete([handles.in.name '_fig2.png']);
+    delete([handles.in.name '_fig3.png']);
 end
 end
 
@@ -495,26 +477,6 @@ function MainPlot_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: place code in OpeningFcn to populate MainPlot
-end
-
-% --- Executes when entered data in editable cell(s) in ResultTable.
-function ResultTable_CellEditCallback(hObject, eventdata, handles)
-% hObject    handle to ResultTable (see GCBO)
-% eventdata  structure with the following fields (see UITABLE)
-%	Indices: row and column indices of the cell(s) edited
-%	PreviousData: previous data for the cell(s) edited
-%	EditData: string(s) entered by the user
-%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
-%	Error: error string when failed to convert EditData to appropriate value for Data
-% handles    structure with handles and user data (see GUIDATA)
-end
-
-% --- Executes when selected cell(s) is changed in ResultTable.
-function ResultTable_CellSelectionCallback(hObject, eventdata, handles)
-% hObject    handle to ResultTable (see GCBO)
-% eventdata  structure with the following fields (see UITABLE)
-%	Indices: row and column indices of the cell(s) currently selecteds
-% handles    structure with handles and user data (see GUIDATA)
 end
 
 % --- Executes on button press in AutoRunButton.
@@ -532,4 +494,3 @@ end
 %         
 %     end
 % end
-
