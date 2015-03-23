@@ -5,7 +5,7 @@ function [RptgenML_CReport1] = buildReport(in,out)
 RptgenML_CReport1 = RptgenML.CReport('Description',...
 ['Results explanation'],...
 'Stylesheet','html-!SingleClearTitleTocLot',...
-'FilenameName',[datestr(now,'yymmdd HHhMM') ' - ' in.name],...
+'FilenameName',[datestr(now,'yymmdd HHMM') ' - ' in.name],...
 'FilenameType','other',...
 'DirectoryType','pwd');
 % setedit(RptgenML_CReport1);
@@ -52,14 +52,14 @@ set(rptgen_cfr_paragraph1,'ParaTextComp',rptgen_cfr_text1);
 setParent(rptgen_cfr_paragraph1,rptgen_cfr_subSection21);
 
 Table1 = {'MARE [%]', num2str(out.train.mae*100);
-         'R² [%]', num2str(out.train.rsquare*100)
+         'Rï¿½ [%]', num2str(out.train.rsquare*100)
          'RMSE [-]', num2str(out.train.rmse)}'; 
 
 rptgen_cfr_table1 = rptgen.cfr_table('Source',Table1,'TableTitle','Training results','AllAlign','center','ColumnWidths',[2 2 2],'isPgwide',false);
 setParent(rptgen_cfr_table1,rptgen_cfr_subSection21);
 
 rptgen_cfr_paragraph1 = rptgen.cfr_paragraph;
-rptgen_cfr_text1 = rptgen.cfr_text('Content','*** Bla bla sur la définition du MARE, R² et RMSE.');
+rptgen_cfr_text1 = rptgen.cfr_text('Content','*** Bla bla sur la dï¿½finition du MARE, Rï¿½ et RMSE.');
 set(rptgen_cfr_paragraph1,'ParaTextComp',rptgen_cfr_text1);
 setParent(rptgen_cfr_paragraph1,rptgen_cfr_subSection21);
 
@@ -71,7 +71,7 @@ if isfield(out,'CV')
     setParent(rptgen_cfr_paragraph1,rptgen_cfr_subSection21);
 
     Table2 = {'MARE [%]', num2str(out.CV.mae*100);
-             'R² [%]', num2str(out.CV.rsquare*100)
+             'Rï¿½ [%]', num2str(out.CV.rsquare*100)
              'RMSE [-]', num2str(out.CV.rmse)}'; 
 
     rptgen_cfr_table1 = rptgen.cfr_table('Source',Table2,'TableTitle','Training results','AllAlign','center','ColumnWidths',[2 2 2],'isPgwide',false);
