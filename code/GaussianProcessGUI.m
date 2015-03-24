@@ -61,6 +61,14 @@ guidata(hObject, handles);
 
 % UIWAIT makes GaussianProcessGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+set(handles.SelectFileButton,'TooltipString', sprintf(help_msg('raw_data')))
+set(handles.ConsideredInputListbox,'TooltipString', sprintf(help_msg('select_io')))
+set(handles.ConsideredOutputListbox,'TooltipString', sprintf(help_msg('select_io')))
+set(handles.TimeVariableCheckbox,'TooltipString', sprintf(help_msg('include_time')))
+set(handles.kfoldTextbox,'TooltipString', sprintf(help_msg('folds')))
+set(handles.PermutationTextbox,'TooltipString', sprintf(help_msg('permutations')))
+%set(handles.open_final_data,'TooltipString', sprintf(help_msg('final_data')))
+%set(handles.save_final_data,'TooltipString', sprintf(help_msg('final_data')))
 end
 
 
