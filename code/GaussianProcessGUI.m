@@ -22,7 +22,7 @@ function varargout = GaussianProcessGUI(varargin)
 
 % Edit the above text to modify the response to help GaussianProcessGUI
 
-% Last Modified by GUIDE v2.5 24-Mar-2015 00:05:30
+% Last Modified by GUIDE v2.5 23-Mar-2015 14:00:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,14 +61,6 @@ guidata(hObject, handles);
 
 % UIWAIT makes GaussianProcessGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-set(handles.SelectFileButton,'TooltipString', sprintf(help_msg('raw_data')))
-set(handles.ConsideredInputListbox,'TooltipString', sprintf(help_msg('select_io')))
-set(handles.ConsideredOutputListbox,'TooltipString', sprintf(help_msg('select_io')))
-set(handles.TimeVariableCheckbox,'TooltipString', sprintf(help_msg('include_time')))
-set(handles.kfoldTextbox,'TooltipString', sprintf(help_msg('folds')))
-set(handles.PermutationTextbox,'TooltipString', sprintf(help_msg('permutations')))
-set(handles.open_final_data,'TooltipString', sprintf(help_msg('final_data')))
-set(handles.save_final_data,'TooltipString', sprintf(help_msg('final_data')))
 end
 
 
@@ -91,8 +83,6 @@ function SelectFileButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 [str_filename,pathname,~] = uigetfile('*.*');
-
-set(hObject, 'TooltipString', sprintf('this is line 1\nand this is line 2'))
 
 if ischar(str_filename) && ischar(pathname)
     
@@ -504,18 +494,3 @@ end
 %         
 %     end
 % end
-
-
-% --- Executes on button press in open_final_data.
-function open_final_data_Callback(hObject, eventdata, handles)
-% hObject    handle to open_final_data (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-end
-
-% --- Executes on button press in save_final_data.
-function save_final_data_Callback(hObject, eventdata, handles)
-% hObject    handle to save_final_data (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-end
