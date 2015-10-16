@@ -154,12 +154,15 @@ if ischar(filename) && ischar(pathname)
             handles.in.headers = header;
         end
 
+        set(handles.ConsideredInputListbox,'Value',[1]);
+        set(handles.ConsideredOutputListbox,'Value',[1]);
         set(handles.ConsideredInputListbox,'Enable','on')
         set(handles.ConsideredInputListbox,'String',handles.in.headers)
         set(handles.ConsideredInputListbox,'Max',max(m_in,n_in))
         set(handles.ConsideredOutputListbox,'Enable','on')
         set(handles.ConsideredOutputListbox,'String',handles.in.headers)
         set(handles.ConsideredOutputListbox,'Max',1) %Only one single output can be selected at a time
+        set(handles.description,'String',' ')
         set(handles.TimeVariableCheckbox,'Enable','on')
         set(handles.kfoldTextbox,'Enable','on')
         set(handles.PermutationTextbox,'Enable','on')
@@ -170,6 +173,9 @@ if ischar(filename) && ischar(pathname)
         set(handles.show_plots,'Enable','off');
         set(handles.display_analysis,'Enable','off');
         set(handles.save_analysis,'Enable','off');
+        cla(handles.MainPlot);
+        cla(handles.SecondPlot);
+        cla(handles.ThirdPlot);
     end
     contents = cellstr(get(handles.ConsideredOutputListbox,'String'));
     index_sel = get(handles.ConsideredOutputListbox,'Value');
