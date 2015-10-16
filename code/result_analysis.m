@@ -16,11 +16,6 @@ fid = fopen('log.txt','w');
 
 write(fid,{
 ' '
-' '
-' '
-' '    
-' '
-' '
 ['GPExp: results analysis of the "' in.name '" dataset']
 ' '
 ' '

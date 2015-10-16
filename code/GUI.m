@@ -1,35 +1,35 @@
-function varargout = GaussianProcessGUI(varargin)
-% GAUSSIANPROCESSGUI MATLAB code for GaussianProcessGUI.fig
-%      GAUSSIANPROCESSGUI, by itself, creates a new GAUSSIANPROCESSGUI or raises the existing
+function varargout = GUI(varargin)
+% GUI MATLAB code for GUI.fig
+%      GUI, by itself, creates a new GUI or raises the existing
 %      singleton*.
 %
-%      H = GAUSSIANPROCESSGUI returns the handle to a new GAUSSIANPROCESSGUI or the handle to
+%      H = GUI returns the handle to a new GUI or the handle to
 %      the existing singleton*.
 %
-%      GAUSSIANPROCESSGUI('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in GAUSSIANPROCESSGUI.M with the given input arguments.
+%      GUI('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in GUI.M with the given input arguments.
 %
-%      GAUSSIANPROCESSGUI('Property','Value',...) creates a new GAUSSIANPROCESSGUI or raises the
+%      GUI('Property','Value',...) creates a new GUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before GaussianProcessGUI_OpeningFcn gets called.  An
+%      applied to the GUI before GUI_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to GaussianProcessGUI_OpeningFcn via varargin.
+%      stop.  All inputs are passed to GUI_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help GaussianProcessGUI
+% Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 16-Apr-2015 20:47:10
+% Last Modified by GUIDE v2.5 16-Oct-2015 10:14:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @GaussianProcessGUI_OpeningFcn, ...
-                   'gui_OutputFcn',  @GaussianProcessGUI_OutputFcn, ...
+                   'gui_OpeningFcn', @GUI_OpeningFcn, ...
+                   'gui_OutputFcn',  @GUI_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -45,21 +45,21 @@ end
 end
 
 
-% --- Executes just before GaussianProcessGUI is made visible.
-function GaussianProcessGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before GUI is made visible.
+function GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to GaussianProcessGUI (see VARARGIN)
+% varargin   command line arguments to GUI (see VARARGIN)
 
-% Choose default command line output for GaussianProcessGUI
+% Choose default command line output for GUI
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes GaussianProcessGUI wait for user response (see UIRESUME)
+% UIWAIT makes GUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 set(handles.SelectFileButton,'TooltipString', sprintf(help_msg('raw_data')))
 set(handles.ConsideredInputListbox,'TooltipString', sprintf(help_msg('select_io')))
@@ -69,11 +69,16 @@ set(handles.kfoldTextbox,'TooltipString', sprintf(help_msg('folds')))
 set(handles.PermutationTextbox,'TooltipString', sprintf(help_msg('permutations')))
 %set(handles.open_final_data,'TooltipString', sprintf(help_msg('final_data')))
 %set(handles.save_final_data,'TooltipString', sprintf(help_msg('final_data')))
+set(handles.showdata,'Enable','off')
+set(handles.save_analysis,'Enable','off')
+set(handles.popup_xy,'Enable','off');
+set(handles.show_plots,'Enable','off');
+set(handles.display_analysis,'Enable','off');
 end
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = GaussianProcessGUI_OutputFcn(hObject, eventdata, handles) 
+function varargout = GUI_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -90,24 +95,28 @@ function SelectFileButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[str_filename,pathname,~] = uigetfile('*.*');
+[filename,pathname,~] = uigetfile({'*.csv';'*.xls';'*.xlsx';'*.mat'},'Select a valid input file','../raw_data_csv');
 
-if ischar(str_filename) && ischar(pathname)
+if ischar(filename) && ischar(pathname)
     
     error = 0;
     
-    if strcmp(str_filename(end-2:end),'mat')
+    if strcmp(filename(end-2:end),'mat')
         %% MAT-file import
-        load([pathname '/' str_filename]);
-        handles.in.name = str_filename(1:end-4);
-    elseif strcmp(str_filename(end-2:end),'csv') || strcmp(str_filename(end-2:end),'xls') || strcmp(str_filename(end-3:end),'xlsx')
+        load([pathname '/' filename]);
+        handles.in.name = filename(1:end-4);
+    elseif strcmp(filename(end-2:end),'csv') || strcmp(filename(end-2:end),'xls') || strcmp(filename(end-3:end),'xlsx')
         %% XLS/CSV/XLSX-file import
         set(handles.ErrorDisplay,'String','')
-        [data,header,~] = xlsread([pathname '/' str_filename]);
-        if strcmp(str_filename(end-2:end),'csv') || strcmp(str_filename(end-2:end),'xls')
-            handles.in.name = str_filename(1:end-4);
-        elseif strcmp(str_filename(end-3:end),'xlsx')
-            handles.in.name = str_filename(1:end-5);
+        if strcmp(filename(end-3:end),'xlsx') || strcmp(filename(end-2:end),'xls')
+            [data,header,~] = xlsread([pathname '/' filename]);
+        elseif strcmp(filename(end-2:end),'csv')
+            [header,data] = csvreadh([pathname '/' filename]);
+        end
+        if strcmp(filename(end-2:end),'csv') || strcmp(filename(end-2:end),'xls')
+            handles.in.name = filename(1:end-4);
+        elseif strcmp(filename(end-3:end),'xlsx')
+            handles.in.name = filename(1:end-5);
         end
         if length(header)<1
             for i = 1:size(data,2)
@@ -125,48 +134,49 @@ if ischar(str_filename) && ischar(pathname)
 
         set(handles.ErrorDisplay,'String','')
 
-        handles.in.inputs = data;
-        handles.in.outputs = data;
-        handles.n = size(handles.in.inputs,1);
-
-        if size(handles.in.inputs,1) ~= size(handles.in.outputs,1)
-            set(handles.ErrorDisplay,'String','The data matrix (inputs) and the targets (outputs) should have the same number of samples');
-            ResetScript
-            set(handles.ErrorDisplay,'ForegroundColor','r')
-        else
-            if ~exist('header','var')%if no variable called header, we create it
-                for i = 1:size(handles.in.inputs,2)
-                    header{1,i} = ['Var' num2str(i)];
-                    handles.in.inputnames = header;
-                    handles.in.outputnames = header;
-                end
+        handles.in.data = data;
+        handles.n = size(handles.in.data,1);
+        handles.in.filename = filename;
+        if ~exist('header','var')%if no variable called header, we create it
+            for i = 1:size(handles.in.data,2)
+                header{1,i} = ['Var' num2str(i)];
+                handles.in.headers = header;
             end
-
-            [m_in,n_in] = size(header);
-
-            %Check whether we have a column or line vector (line vector
-            %required)
-            if m_in < n_in
-                handles.in.inputnames = header';
-                handles.in.outputnames = header';
-            else
-                handles.in.inputnames = header;
-                handles.in.outputnames = header;
-            end
-
-            set(handles.ConsideredInputListbox,'Enable','on')
-            set(handles.ConsideredInputListbox,'String',handles.in.inputnames)
-            set(handles.ConsideredInputListbox,'Max',max(m_in,n_in))
-            set(handles.ConsideredOutputListbox,'Enable','on')
-            set(handles.ConsideredOutputListbox,'String',handles.in.outputnames)
-            set(handles.ConsideredOutputListbox,'Max',1)%Only one single output can be selected at a time
-            set(handles.TimeVariableCheckbox,'Enable','on')
-            set(handles.kfoldTextbox,'Enable','on')
-            set(handles.PermutationTextbox,'Enable','on')
-            set(handles.RunButton,'Enable','on')
-            set(handles.AnalysisStatusButton,'String','Run Analysis');
         end
+
+        [m_in,n_in] = size(header);
+
+        %Check whether we have a column or line vector (line vector
+        %required)
+        if m_in < n_in
+            handles.in.headers = header';
+        else
+            handles.in.headers = header;
+        end
+
+        set(handles.ConsideredInputListbox,'Enable','on')
+        set(handles.ConsideredInputListbox,'String',handles.in.headers)
+        set(handles.ConsideredInputListbox,'Max',max(m_in,n_in))
+        set(handles.ConsideredOutputListbox,'Enable','on')
+        set(handles.ConsideredOutputListbox,'String',handles.in.headers)
+        set(handles.ConsideredOutputListbox,'Max',1) %Only one single output can be selected at a time
+        set(handles.TimeVariableCheckbox,'Enable','on')
+        set(handles.kfoldTextbox,'Enable','on')
+        set(handles.PermutationTextbox,'Enable','on')
+        set(handles.ngrid,'Enable','on')
+        set(handles.RunButton,'Enable','on')
+        set(handles.showdata,'Enable','on');
+        set(handles.popup_xy,'Enable','off');
+        set(handles.show_plots,'Enable','off');
+        set(handles.display_analysis,'Enable','off');
+        set(handles.save_analysis,'Enable','off');
     end
+    contents = cellstr(get(handles.ConsideredOutputListbox,'String'));
+    index_sel = get(handles.ConsideredOutputListbox,'Value');
+    handles.in.considered_output=contents(index_sel');
+    contents = cellstr(get(handles.ConsideredInputListbox,'String'));
+    index_sel = get(handles.ConsideredInputListbox,'Value');
+    handles.in.considered_inputs=contents(index_sel');
 guidata(hObject,handles);
 end
 end
@@ -183,7 +193,16 @@ function ConsideredInputListbox_Callback(hObject, eventdata, handles)
 contents = cellstr(get(hObject,'String'));
 index_sel = get(hObject,'Value');
 handles.in.considered_inputs=contents(index_sel');
-handles.in.considered_input_index = index_sel;
+%handles.in.considered_input_index = index_sel;
+
+% Clear variables that depend on in the selected inputs:
+if isfield(handles.in,'hyp')
+    handles.in = rmfield(handles.in,'hyp');
+end
+if isfield(handles.in,'covfunction')
+    handles.in = rmfield(handles.in,'covfunction');
+end
+set(handles.save_analysis,'Enable','off');
 
 guidata(hObject,handles);
 end
@@ -214,7 +233,17 @@ function ConsideredOutputListbox_Callback(hObject, eventdata, handles)
 contents = cellstr(get(hObject,'String'));
 index_sel = get(hObject,'Value');
 handles.in.considered_output=contents(index_sel');
-handles.in.considered_output_index = index_sel;
+%handles.in.considered_output_index = index_sel;
+
+% Clear variables that depend on in the selected inputs:
+if isfield(handles.in,'hyp')
+    handles.in = rmfield(handles.in,'hyp');
+end
+if isfield(handles.in,'covfunction')
+    handles.in = rmfield(handles.in,'covfunction');
+end
+set(handles.save_analysis,'Enable','off');
+
 
 guidata(hObject,handles);
 end
@@ -242,6 +271,7 @@ function TimeVariableCheckbox_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of TimeVariableCheckbox
 
 handles.in.consider_temporality = get(hObject,'Value');
+set(handles.save_analysis,'Enable','off');
 
 guidata(hObject,handles);
 end
@@ -258,9 +288,7 @@ function kfoldTextbox_Callback(hObject, eventdata, handles)
 
 handles.in.kfolds = str2double(get(hObject,'String'));
 
-% if ~isnan(str2double(get(handles.PermutationTextbox,'String')))
-%     set(handles.RunButton,'Enable','on')
-% end
+set(handles.save_analysis,'Enable','off');
 
 guidata(hObject,handles);
 end
@@ -290,9 +318,7 @@ function PermutationTextbox_Callback(hObject, eventdata, handles)
 
 handles.in.perm = str2double(get(hObject,'String'));
 
-% if ~isnan(str2double(get(handles.kfoldTextbox,'String')))
-%     set(handles.RunButton,'Enable','on')
-% end
+set(handles.save_analysis,'Enable','off');
 
 guidata(hObject,handles);
 end
@@ -320,162 +346,80 @@ function RunButton_Callback(hObject, eventdata, handles)
 cla(handles.MainPlot)
 cla(handles.SecondPlot)
 cla(handles.ThirdPlot);
-set( gcf, 'toolbar', 'figure' )
+set( gcf, 'toolbar', 'none' )
 
-% handles.in = inputs_sanity_check(handles.in);
-
-error = 0;
-
+% Get all values from the different form components:
+handles.in.kfolds = str2double(get(handles.kfoldTextbox,'String'));
+handles.in.perm = str2double(get(handles.PermutationTextbox,'String'));
+handles.in.Ngrid = str2double(get(handles.ngrid,'String'));
 set(handles.ErrorDisplay,'String','');
 set(handles.ErrorDisplay,'ForegroundColor','k');
 
-handles.in.kfolds = str2double(get(handles.kfoldTextbox,'String'));
-handles.in.perm = str2double(get(handles.PermutationTextbox,'String'));
+[handles.in,errors,warnings] = inputs_sanity_check(handles.in);
 
-inputs_sanity_check_script;
+if ~isempty(errors)
+    set(handles.ErrorDisplay,'String',errors{1});
+    set(handles.ErrorDisplay,'ForegroundColor','r');
+else
+    set(handles.ErrorDisplay,'String','Analysis started, check the Matlab Console');
+    set(handles.ErrorDisplay,'ForegroundColor','b');
+    set(hObject,'Enable','off');
+    set(handles.figure1, 'pointer', 'watch');
+    drawnow;
 
-if error == 0
     handles.results = main_model(handles.in);
     
-    %% 3D plot of the results:
-    x=handles.in.x;
-    y=handles.in.y;
-    z = handles.results.ndgrid.z;
-    y_gp = handles.results.ndgrid.y_gp;
-    s2 = handles.results.ndgrid.s2;
-
-    nv = size(handles.in.considered_inputs,1);
-
-    z_shaped = zeros(handles.in.Ngrid,nv);
-    for i = 1:nv
-        if nv > 1
-            yp_shaped=reshape(y_gp,ones(1,nv)*handles.in.Ngrid);   % make a n-D matrix
-            z_shaped(:,i)=linspace(min(z(:,i)),max(z(:,i)),handles.in.Ngrid);
-        else
-            z_shaped = z;
+    %set(hObject,'Enable','on')
+    set(handles.ErrorDisplay,'String','Analysis terminated');
+    set(handles.ErrorDisplay,'ForegroundColor','b');   
+    set(handles.figure1, 'pointer', 'arrow')
+    set(handles.save_analysis,'Enable','on')
+    set(handles.display_analysis,'Enable','on')
+    set(handles.show_plots,'Enable','on')
+    set(hObject,'Enable','on');
+    
+    Ninputs = length(handles.in.considered_inputs);
+    if Ninputs > 2
+        comb = nchoosek(1:Ninputs,2);
+        liste = {'Most relevant'};
+        for i = 1:size(comb,1)
+            liste{i+1} = [handles.in.considered_inputs{comb(i,1)} ' - ' handles.in.considered_inputs{comb(i,2)}];
         end
-    end
-
-    axes(handles.MainPlot);
-
-    if nv==1
-        f = [y_gp+2*sqrt(s2); flipdim(y_gp-2*sqrt(s2),1)];
-        fill([z; flipdim(z,1)], f, [7 7 7]/8)
-        hold on; plot(z, y_gp); plot(x, y, '+');
-        xlabel(handles.in.considered_inputs); ylabel(handles.in.considered_output);
-    elseif nv==2
-        hold on;
-        surf(z_shaped(:,1),z_shaped(:,2),yp_shaped);
-        plot3(x(:,1),x(:,2), y, '+')
-        xlabel(handles.in.considered_inputs(1)); ylabel(handles.in.considered_inputs(2)) ; zlabel(handles.in.considered_output);
-        grid on
-        view(45,25);
-    elseif nv > 2
-        if isfield(handles.in,'idx_xy') %if the x and y axes are imposed
-            idx_sort = [handles.in.idx_xy, 1:(min(handles.in.idx_xy)-1),(min(handles.in.idx_xy)+1):(max(handles.in.idx_xy)-1),(max(handles.in.idx_xy)+1:nv)] ;
-        else % Sort the variables in terms of their weights or lengthscale in absolute value:
-            if ~isempty(strfind(handles.in.covfunction{:},'ard'))
-                [aa idx_sort] = sort(handles.results.hypcov(1:end-1));
-            else
-                [aa idx_sort] = sort(abs(handles.results.weights),'descend');
-            end
-        end
-        % Set the nv-2 least relevant variables yp_shaped their median value:
-        med = median(z);
-        % Take a slice of the hypercube yp_shaped plot the two main relevant
-        % variables:
-        y_surf = permute(yp_shaped,idx_sort);
-        med=med(idx_sort);
-        itp=[];
-        plottext = '';
-        for i=1:nv
-            if i==1 || i==2
-                itp=[itp,',:'];
-            else
-                indi=idx_sort(i);
-                vec = z_shaped(:,indi);
-                [dd,indt] = min(abs(vec-med(i)));
-                itp=[itp,[',',num2str(indt)]];
-                plottext = strcat(plottext,{' '},handles.in.considered_inputs(indi), {' = '}, num2str(vec(indt)), {'; '});
-            end
-        end
-        eval([ 'y_surf = y_surf(' itp(2:end) ');'])
-        vecx = z_shaped(:,idx_sort(1));
-        vecy = z_shaped(:,idx_sort(2));
-        surf(vecy,vecx,y_surf);
-        ylabel(handles.in.considered_inputs(idx_sort(1))); xlabel(handles.in.considered_inputs(idx_sort(2))) ; zlabel(handles.in.considered_output); %title(plottext);
-        grid on
-        view(45,25);
-    end
-    SaveScriptFig1
-
-    %% plot of predicted vs. measured variables
-    miny = min(y) - (max(y)-min(y))/15;
-    maxy = max(y) + (max(y)-min(y))/15;
-
-    axes(handles.SecondPlot);
-    axis([miny,maxy,miny,maxy])
-    hold on
-    plot(y,handles.results.train.y_pred,'r*')
-    plot([miny,maxy],[miny,maxy],'k')
-    if isfield(handles.results,'CV')
-        plot(y,handles.results.CV.y_pred,'b+')
-        legend('Train (i.e. with all data samples)','45 deg','Cross-Validation','Location','best')
+        set(handles.popup_xy,'String',liste)
+        set(handles.popup_xy,'Enable','on')
     else
-        legend('Train (i.e. with all data samples)','45 deg','Location','best')
+        set(handles.popup_xy,'String',{'Most relevant'})
+        set(handles.popup_xy,'Enable','off')
     end
+    drawnow;
     
-    SaveScriptFig2
-
-    %% Plot all the points on the gaussian distribution + 5% confidence intervals
-
+    % Plotting:
+    cla(handles.MainPlot);
+    cla(handles.SecondPlot);
+    cla(handles.ThirdPlot);
+    axes(handles.MainPlot);
+    plot_regression(handles.in,handles.results);
+    axes(handles.SecondPlot);
+    plot_prediction(handles.in,handles.results);
     axes(handles.ThirdPlot);
-    alpha = 0.025;          % significance level
-    mu = 0;               % mean
-    sigma = 1;             % std
-    range = max(3,max(abs(handles.results.outliers))) ;       % range (in the units of the std) for plotting
-    cutoff1 = norminv(alpha, mu, sigma);
-    cutoff2 = norminv(1-alpha, mu, sigma);
-    x = [linspace(mu-range*sigma,cutoff1,20), ...
-        linspace(cutoff1,cutoff2,50), ...
-        linspace(cutoff2,mu+range*sigma,20)];
-    y = normpdf(x, mu, sigma);
-    plot(x,y);
-
-    xlo = [-range x(x<=cutoff1) cutoff1];
-    ylo = [0 y(x<=cutoff1) 0];
-    patch(xlo, ylo, 'r','FaceAlpha',0.25)
-
-    xhi = [cutoff2 x(x>=cutoff2) range];
-    yhi = [0 y(x>=cutoff2) 0];
-    patch(xhi, yhi, 'r','FaceAlpha',0.25)
-
-    xlabel('Number of standard deviations')
-    ylabel('Gaussian probability distribution')
-
-    for i = 1:length(handles.results.outliers)
-        string = num2str(i);
-        xx = handles.results.outliers(i);
-        yy=normpdf(xx,mu,sigma);
-        text(xx,yy,string);
-    end
-    
-    SaveScriptFig3
-    
-    set(handles.AnalysisStatusButton,'String','Analysis Done');
+    plot_gaussian(handles.in,handles.results);
     
     %% HTML report
 
     %Report construction
-    
-    report(buildReport(handles.in,handles.results));
-    
+    % the buildreport does not seem to work in Matlab 2014. Desactivated
+    % until it can be debugged.
+    %report(buildReport(handles.in,handles.results));
+
     %Suppression of the image createn for the report
     
-    delete([handles.in.name '_fig1.png']);
-    delete([handles.in.name '_fig2.png']);
-    delete([handles.in.name '_fig3.png']);
+    %delete([handles.in.name '_fig1.png']);
+    %delete([handles.in.name '_fig2.png']);
+    %delete([handles.in.name '_fig3.png']);
+    
+    result_analysis(handles.in,handles.results)
 end
+guidata(hObject,handles);
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -487,36 +431,81 @@ function MainPlot_CreateFcn(hObject, eventdata, handles)
 % Hint: place code in OpeningFcn to populate MainPlot
 end
 
-% --- Executes on button press in AutoRunButton.
-function AutoRunButton_Callback(hObject, eventdata, handles)
-% hObject    handle to AutoRunButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-end
-% N_var = length(handles.in.inputnames);
-% N_comb = factorial(N_var)./(factorial([N_var-1:-1:0]).*factorial([1:N_var])); %Number of possible cases per level (ie for 1 input, 2 inputs, 3 inputs ...)
-% N_comb_tot = sum(N_comb);
-% 
-% for i = 1%:N_var %Number of variable "trees"
-%     for j = 1:N_var-i
-%         
-%     end
-% end
-
-
 % --- Executes on button press in load_analysis.
 function load_analysis_Callback(hObject, eventdata, handles)
 % hObject    handle to load_analysis (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-x = 1:1000;
-y = sin(x);
+[file,path] = uigetfile({'*.mat'},'Select a valid simulation result file','../saved_simulations');
+fullpath = [path file];
+load(fullpath);
 
-figure(10)
-plot(y)
+if ~exist('in') || ~exist('results')
+    set(handles.ErrorDisplay,'String','The .mat file could not be loaded because it does not contain the "in" and "results" variables. It might not be a proper GPExp data file');
+    set(handles.ErrorDisplay,'ForegroundColor','r');
+else
+    handles.in = in;
+    handles.results = results;
+    set(handles.ConsideredInputListbox,'Enable','on')
+    set(handles.ConsideredInputListbox,'String',handles.in.headers)
+    set(handles.ConsideredInputListbox,'Max',length(handles.in.headers))
+    set(handles.ConsideredOutputListbox,'Enable','on')
+    set(handles.ConsideredOutputListbox,'String',handles.in.headers)
+    set(handles.ConsideredOutputListbox,'Max',1) %Only one single output can be selected at a time
+    set(handles.TimeVariableCheckbox,'Value',handles.in.consider_temporality)   
+    set(handles.kfoldTextbox,'String',num2str(handles.in.kfolds))
+    set(handles.PermutationTextbox,'String',num2str(handles.in.perm))
+    set(handles.description,'String',handles.in.description)
+    set(handles.ngrid,'String',num2str(handles.in.Ngrid))
+    set(handles.figure1, 'pointer', 'arrow')
+    set(handles.ErrorDisplay,'String',['Loaded previous simulation: ' handles.in.name]);
+    set(handles.ErrorDisplay,'ForegroundColor','b');  
+    
+    set(handles.PermutationTextbox,'Enable','on')    
+    set(handles.ngrid,'Enable','on')  
+    set(handles.RunButton,'Enable','on')
+    set(handles.showdata,'Enable','on');
+    set(handles.kfoldTextbox,'Enable','on')
+    set(handles.showdata,'Enable','on');
+    set(handles.show_plots,'Enable','on');
+    set(handles.save_analysis,'Enable','off')
+    set(handles.display_analysis,'Enable','on')
+    
+    Ninputs = length(handles.in.considered_inputs);
+    idx = zeros(Ninputs,1);
+    for i = 1:Ninputs
+        idx(i) = find(strcmp([handles.in.headers], handles.in.considered_inputs{i}));
+    end
+    idx_out = find(strcmp([handles.in.headers], handles.in.considered_output{1}));
+    set(handles.ConsideredInputListbox,'Value',idx);
+    set(handles.ConsideredOutputListbox,'Value',idx_out);
+    
+    if Ninputs > 2
+        comb = nchoosek(1:Ninputs,2);
+        liste = {'Most relevant'};
+        for i = 1:size(comb,1)
+            liste{i+1} = [handles.in.considered_inputs{comb(i,1)} ' - ' handles.in.considered_inputs{comb(i,2)}];
+        end
+        set(handles.popup_xy,'String',liste)
+    else
+        set(handles.popup_xy,'String',{'Most relevant'})
+        set(handles.popup_xy,'Enable','off')
+    end
+    
+    % Plotting:
+    cla(handles.MainPlot,'reset')
+    axes(handles.MainPlot);
+    plot_regression(handles.in,handles.results);
+    cla(handles.SecondPlot,'reset')
+    axes(handles.SecondPlot);
+    plot_prediction(handles.in,handles.results);
+    cla(handles.ThirdPlot,'reset')
+    axes(handles.ThirdPlot);
+    plot_gaussian(handles.in,handles.results);
+end
 
-
+guidata(hObject,handles);
 end
 
 % --- Executes on button press in save_analysis.
@@ -525,50 +514,175 @@ function save_analysis_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% add warning if the inputs have been modified compared to the present
-% analysis
-
+if ~isfield(handles,'in') || ~isfield(handles,'results')
+    set(handles.ErrorDisplay,'String','Results do no seem to have been computed');
+    set(handles.ErrorDisplay,'ForegroundColor','r');
+    set(hObject,'Enable','off')
+else
+    in = handles.in;
+    results = handles.results;
+    [file,path] = uiputfile('*.mat','Save simulation','../saved_simulations');
+    fullpath = [path file];
+    save(fullpath,'in','results');
+end
+    
 end
 
-% --- Executes on button press in plot_regression.
-function plot_regression_Callback(hObject, eventdata, handles)
-% hObject    handle to plot_regression (see GCBO)
+% --- Executes on button press in show_plots.
+function show_plots_Callback(hObject, eventdata, handles)
+% hObject    handle to show_plots (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    % Plotting:
+figure(1)
+plot_regression(handles.in,handles.results);
+figure(2)
+plot_prediction(handles.in,handles.results);
+figure(3)
+plot_gaussian(handles.in,handles.results);
+end
+
+% --- Executes on button press in display_analysis.
+function display_analysis_Callback(hObject, eventdata, handles)
+% hObject    handle to display_analysis (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+result_analysis(handles.in,handles.results);
+
+if exist('log.txt','file')
+    fid = fopen('log.txt');
+    str = textscan(fid, '%s', 'Delimiter','\n'); str = str{1};
+    fclose(fid);
+    f=figure;
+    hPan = uipanel(f,'Units','normalized');
+    uicontrol(hPan, 'Style','listbox', ...
+    'HorizontalAlignment','left', ...
+    'Units','normalized', 'Position',[0 0 1 1], ...
+    'String',str);
+else
+    set(handles.ErrorDisplay,'String','Could not file analysis log file');
+    set(handles.ErrorDisplay,'ForegroundColor','r');
+    set(hObject,'Enable','off')
+end
+    
 end
 
-% --- Executes on button press in select_plot_inputs.
-function select_plot_inputs_Callback(hObject, eventdata, handles)
-% hObject    handle to select_plot_inputs (see GCBO)
+% --- Executes on button press in showdata.
+function showdata_Callback(hObject, eventdata, handles)
+% hObject    handle to showdata (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+f = figure('position',[100 100 752 250]);
+uitable(f,'unit','normalized','Position', [0 0 1 1],'Data',handles.in.data,'ColumnName',handles.in.headers);
+end
+
+% --- Executes on button press in feature_selection.
+function feature_selection_Callback(hObject, eventdata, handles)
+% hObject    handle to feature_selection (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-end
-
-% --- Executes on button press in discard_results.
-function discard_results_Callback(hObject, eventdata, handles)
-% hObject    handle to discard_results (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-end
-
-% --- Executes on button press in diplay_analysis.
-function diplay_analysis_Callback(hObject, eventdata, handles)
-% hObject    handle to diplay_analysis (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of feature_selection
 end
 
 
-% --- Executes on button press in only_inputs.
-function only_inputs_Callback(hObject, eventdata, handles)
-% hObject    handle to only_inputs (see GCBO)
+% --- Executes on selection change in popup_xy.
+function popup_xy_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_xy (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of only_inputs
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_xy contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_xy
 
+contents = cellstr(get(hObject,'String'));
+index_sel = get(hObject,'Value');
+value = contents(index_sel');
+if strcmp(contents(index_sel'),'Most relevant')
+    % do nothing
+else
+    % split string 
+    strings = strsplit(value{1},' - ');
+    handles.in.plot_xy=strings;
+    handles.in.idx_xy = [];
+    for i = 1:2
+        idx = find(strcmp(handles.in.considered_inputs,handles.in.plot_xy{i}));
+        if isempty(idx)
+            error(['The specified axis input (' handles.in.plot_xy{i} ') could no be found in the list of selected input names']);
+        end
+        handles.in.idx_xy = [handles.in.idx_xy idx];
+    end
+    
+end
+
+guidata(hObject,handles);
+end
+
+% --- Executes during object creation, after setting all properties.
+function popup_xy_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_xy (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+end
+
+
+
+function ngrid_Callback(hObject, eventdata, handles)
+% hObject    handle to ngrid (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.in.Ngrid = str2double(get(hObject,'String'));
+set(handles.save_analysis,'Enable','off');
+
+guidata(hObject,handles);
+end
+
+% --- Executes during object creation, after setting all properties.
+function ngrid_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ngrid (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+end
+
+
+
+function description_Callback(hObject, eventdata, handles)
+% hObject    handle to description (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of description as text
+%        str2double(get(hObject,'String')) returns contents of description as a double
+
+handles.in.description = get(hObject,'String');
+
+guidata(hObject,handles);
+
+end
+
+% --- Executes during object creation, after setting all properties.
+function description_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to description (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 end

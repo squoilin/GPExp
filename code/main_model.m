@@ -42,7 +42,20 @@ function [out]=main_model(in)
 
 % Adding the GPML toolbox to the path:
 
-gpmlpath = '../gpml3.5/';   % path to the gpml library
+gpmlpath = 'gpml3.5/';   % path to the gpml library
+
+
+% Check that the path exists:
+
+if exist(gpmlpath,'dir') > 0
+    % do nothing
+elseif exist(['code/' gpmlpath],'dir') > 0
+    gpmlpath = ['code/' gpmlpath];
+elseif exist(['../code/' gpmlpath],'dir') > 0
+    gpmlpath = ['../code/' gpmlpath];
+else
+    error('Could not find the GPML library. Check the gpmlpath variable in main_model.m')
+end
 
 addpath(gpmlpath)
 addpath([gpmlpath 'cov/'])
@@ -272,10 +285,5 @@ if k>=0
     out.CV.pmae=pcvmae/nperm;
 end
 
-% Plot results:
-% plot_results(in,out);
-
-% Save simulation inputs and outputs:
-save(['GP_modelling_dataset_',num2str(name),'.mat'],'in','out')
 toc
 
