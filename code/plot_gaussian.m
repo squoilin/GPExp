@@ -10,12 +10,12 @@ alpha = 0.025;          % significance level
 mu = 0;               % mean
 sigma = 1;             % std
 range = max(3,max(abs(out.outliers))) ;       % range (in the units of the std) for plotting
-cutoff1 = norminv(alpha, mu, sigma);
-cutoff2 = norminv(1-alpha, mu, sigma);
+cutoff1 = norminv2(alpha, mu, sigma);
+cutoff2 = norminv2(1-alpha, mu, sigma);
 x = [linspace(mu-range*sigma,cutoff1,20), ...
     linspace(cutoff1,cutoff2,50), ...
     linspace(cutoff2,mu+range*sigma,20)];
-y = normpdf(x, mu, sigma);
+y = normpdf2(x, mu, sigma);
 plot(x,y)
 
 xlo = [-range x(x<=cutoff1) cutoff1];
@@ -32,7 +32,7 @@ ylabel('Gaussian probability distr.')
 for i = 1:length(out.outliers)
     string = num2str(i);
     xx = out.outliers(i);
-    yy=normpdf(xx,mu,sigma);
+    yy=normpdf2(xx,mu,sigma);
     text(xx,yy,string);
 end
 
