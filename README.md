@@ -1,7 +1,7 @@
 GPExp - A **G**aussian **P**rocess framework for the analysis of **Exp**erimental Data
 ===================
 
-GPExp is a Matlab too useful to assess the quality of steady-state experimental results with regards to the provided inputs. It can help understanding which input variables are the most relevant, what the repeatability of the test, which data points are likely to be outliers, etc. 
+GPExp is a Matlab too useful to assess the quality of steady-state experimental results with regards to the provided inputs. It can help understanding which input variables are the most relevant, what is the repeatability of the experiments, which data points are likely to be outliers, etc. 
 
 GPExp is based on the GPML Matlab Library version 3.5 developped by Carl Edward Rasmussen and Christopher K. I. Williams. 
 
