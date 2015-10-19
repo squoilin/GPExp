@@ -218,6 +218,33 @@ else
 end
 
 
+write(fid,{
+' '
+' '
+'PREDICTION'
+' '
+'Once the analysis has been performed and the results are satisfying (i.e. '
+'no overfitting, outliers have been removed, accuracy is sufficient, etc),'
+'the result files can be used for prediction, i.e. to predict the output ' 
+'of a set of inputs outside of the data.'
+'This can be done by :'
+'1. loading the "in" and "out" structures from the .mat result analysis file:'
+});
+write(fid,{'   "load data-file.mat"'},'blue');
+write(fid,{
+    '2. Use the GPExp prediction function by assigning a value to each input:'
+});
+
+string = [];
+for i=1:length(in.considered_inputs)
+    string = [string '''' in.considered_inputs{i} ''', value' num2str(i) ', '];
+end
+string = string(1:end-2);    % removing end comma
+write(fid,{
+['   "GP_prediction(in,results, ' string ')"']
+' '
+' '
+},'blue');
 
 end
 
