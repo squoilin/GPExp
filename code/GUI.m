@@ -208,6 +208,12 @@ end
 if isfield(handles.in,'covfunction')
     handles.in = rmfield(handles.in,'covfunction');
 end
+if isfield(handles.in,'plot_xy')
+    handles.in = rmfield(handles.in,'plot_xy');
+end
+if isfield(handles.in,'idx_xy')
+    handles.in = rmfield(handles.in,'idx_xy');
+end
 set(handles.save_analysis,'Enable','off');
 
 guidata(hObject,handles);

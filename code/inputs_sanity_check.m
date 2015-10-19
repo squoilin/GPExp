@@ -101,7 +101,7 @@ for i=1:size(in.considered_inputs,1)
 end
 
 if isfield(in,'plot_xy')
-    if size(in.plot_xy,1) ~= 2
+    if length(in.plot_xy) ~= 2
         errors{end+1} = 'plot_xy should contain exactly two cells (one for the x axis and one for the y axis)';
     else
         in.idx_xy = [];
