@@ -65,7 +65,7 @@ else
             idx = find(strcmp(strvar,temp));
             if ~isempty(idx)   
                 InputValues(i) = value;
-                if iscell(temp)
+                if iscell(temp) && length(temp)>1
                     temp = temp{[1:idx(1)-1 idx(1)+1:end]};
                 else
                     temp = [];
@@ -93,8 +93,8 @@ end
 meanfunc=[];
 likfunc = @likGauss;
 
-xx = [[InputValues(1), InputValues(2) ]];
+xx = [InputValues];
 
-[y,s2] = gp(out.hyp, @infExact, meanfunc, in.covfunction, likfunc, in.x, in.y, xx);
+[y,s2] = gp(out.hyp, @infExact, meanfunc, in.covfunction, likfunc, in.x, in.y, xx');
 
 end
