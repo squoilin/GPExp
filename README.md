@@ -7,7 +7,7 @@ GPExp is based on the GPML Matlab Library version 3.5 developped by Carl Edward 
 
 It runs on Matlab® 7.x and later. 
 
-The code is released under the FreeBSD License.
+The code is released under the European Union Public Licence EUPL v1.1.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice,    this list of conditions and the following disclaimer.

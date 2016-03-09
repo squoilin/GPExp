@@ -46,13 +46,13 @@ write(fid,{
     'MAIN RESULTS'
     '(NB: These results are stored in the out.CV and out.train variables)'
     ' '
-    'In training mode (with all the data points):'
+    'Whole training set (i.e. with all the data points):'
     });
 
 write(fid,{
-    ['Mean relative error: ' num2str(out.train.mae*100) ' %%']
+    ['Normalized mean absolute error: ' num2str(out.train.mae*100) ' %%']
     ['Coefficient of determination (R square): '   num2str(out.train.rsquare*100) ' %%']
-    ['Root mean square error (RMSE): ' num2str(out.train.rmse)]    
+    ['Normalized root mean square error (RMSE): ' num2str(out.train.rmse)]    
     },'blue');
 
  write(fid,{
@@ -62,9 +62,9 @@ write(fid,{
 
 if isfield(out,'CV')
 write(fid,{
-        ['Mean relative error: ' num2str(out.CV.mae*100) ' %%']
+        ['Normalized mean absolute error: ' num2str(out.CV.mae*100) ' %%']
         ['Coefficient of determination (R square): '   num2str(out.CV.rsquare*100) ' %%']
-        ['Root mean square error (RMSE): ' num2str(out.CV.rmse)]    
+        ['Normalized root mean square error (RMSE): ' num2str(out.CV.rmse)]    
         },'blue');
 else
     write(fid,{
@@ -160,7 +160,7 @@ if in.perm < 1
     write(fid,{
         'Permutations were not used in the present analysis'
         },'blue');
-elseif in.perm < 20
+elseif in.perm < 100
     write(fid,{
         ['Warning: The number of permutations is quite low (' num2str(in.perm) '),']
         'the provided pmae might not have a sufficient statistical relevance'
