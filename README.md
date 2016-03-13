@@ -14,8 +14,9 @@ Redistribution and use in source and binary forms, with or without modification,
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the    documentation and/or other materials provided with the distribution.
 
 Main developers:
-* Sylvain Quoilin (University of Liege)
+* Sylvain Quoilin (Joint Research Center, European Commission)
 * Jessica Schrouff (Stanford University)
+* Nicolas Huet (University of Liege)
 * Arnaud Legros (University of Liege)
 
 This tool is part of the IWT SBO-110006 Project ‘‘The Next Generation Organic Rankine Cycles’’ (www.orcnext.be), funded by the Institute for the Promotion and Innovation by Science and Technology in Flanders (IWT).
