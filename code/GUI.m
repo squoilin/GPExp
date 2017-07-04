@@ -500,6 +500,7 @@ else
             liste{i+1} = [handles.in.considered_inputs{comb(i,1)} ' - ' handles.in.considered_inputs{comb(i,2)}];
         end
         set(handles.popup_xy,'String',liste)
+        set(handles.popup_xy,'Enable','on')
     else
         set(handles.popup_xy,'String',{'Most relevant'})
         set(handles.popup_xy,'Enable','off')

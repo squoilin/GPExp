@@ -221,6 +221,46 @@ end
 write(fid,{
 ' '
 ' '
+'LENGTHSCALES AND SENSITIVITY ANALYSIS'
+' '
+'Feature selection (i.e. determining the relevance of each input variable'
+'can be performed based on the optimal lengthscales of the ARD kernel'
+'The lengthscales are a good indicator of the relevance of a particular '
+'input to predict the output. High lengthscale values indicate that the'
+'output varies slowly in the direction of the selected input. The sensitivity'
+'is therefore low. Extermely high lengthscales indicate that the optimization'
+'of the marginal likelyhool leads to neglect the influence of the specified variable'
+});
+write(fid,{' '},'blue');
+
+for i=1:length(in.considered_inputs)
+    string = [in.considered_inputs{i},': ',num2str(out.hypcov(i))];
+    write(fid,{string},'blue');
+end
+write(fid,{' '},'blue');
+write(fid,{['Prior Likelyhood: ', num2str(out.hypcov(end))]},'blue');
+
+[minval,minpos] = min(out.hypcov(1:end-1));
+[maxval,maxpos] = max(out.hypcov(1:end-1));
+
+write(fid,{' '},'blue');
+
+write(fid,{['The most relevant variable seems to be ', in.considered_inputs{minpos}]},'blue');
+write(fid,{['The least relevant variable seems to be ', in.considered_inputs{maxpos}]},'blue');
+
+write(fid,{
+'   '
+' '
+' '
+},'blue');
+
+
+
+
+
+write(fid,{
+' '
+' '
 'PREDICTION'
 ' '
 'Once the analysis has been performed and the results are satisfying (i.e. '

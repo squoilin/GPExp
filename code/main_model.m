@@ -34,12 +34,6 @@ function [out]=main_model(in)
 % Written by J. Schrouff and S. Quoilin, University of Liège, 2013-2014
 % Using the GPML toolbox written by C.E. Rasmussen and C.K. Williams (2006)
 
-% todo: save the hypercube and its vectors
-% optimize the minimization
-
-%recursive feature addition/elimination
-
-
 % Adding the GPML toolbox to the path:
 
 gpmlpath = 'gpml3.5/';   % path to the gpml library
@@ -121,13 +115,13 @@ ss=s/max(s);
 %r = sum(s > tol);
 tol=0.001;
 r=length(find(ss> tol));
-if r<size(x,2)
-    warning('MATLAB:Rankdeff','Rank defficient input matrix: dependent variables in input')
-    ind=find(ss<=tol);
-    for i=1:length(n)
-        sprintf('Variables number %d \n',ind(i))
-    end
-end
+% if r<size(x,2)
+%     warning('MATLAB:Rankdeff','Rank defficient input matrix: dependent variables in input')
+%     ind=find(ss<=tol);
+%     for i=1:length(n)
+%         sprintf('Variables number %d \n',ind(i))
+%     end
+% end
 
 bi=min(x);
 bs=max(x);
@@ -271,7 +265,7 @@ for p=0:nperm %for each permutation of the targets + the "true" targets
             out.CV.y_pred=pt*maxy + moyy;
             [out.CV.rsquare out.CV.rmse] = rsquare(out.CV.y_pred,yy);
         else                        % If we are permuted, calculate the average mae for each permutation
-            if tempm<out.CV.mae
+            if tempm<=out.CV.mae
                 pcvmae=pcvmae+1;
             end
         end
@@ -282,7 +276,7 @@ end
 out.ss = ss;
 
 if k>=0
-    out.CV.pmae=pcvmae/nperm;
+    out.CV.pmae=(pcvmae+1)/(nperm+1);
 end
 
 toc
